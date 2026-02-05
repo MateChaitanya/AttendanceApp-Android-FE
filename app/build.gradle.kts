@@ -49,8 +49,15 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
 
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    // OkHttp (logging)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
     //Google’s FusedLocationProviderClient for accurate location
     implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation(libs.androidx.cardview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -1,36 +1,3 @@
-//package com.example.attendanceapp.ui.attendance
-//
-//import android.os.Bundle
-//import androidx.appcompat.app.AppCompatActivity
-//import com.example.attendanceapp.databinding.ActivityMarkAttendanceBinding
-//import java.text.SimpleDateFormat
-//import java.util.Date
-//import java.util.Locale
-//
-//class MarkAttendanceActivity : AppCompatActivity() {
-//
-//    private lateinit var binding: ActivityMarkAttendanceBinding
-//
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        binding = ActivityMarkAttendanceBinding.inflate(layoutInflater)
-//        setContentView(binding.root)
-//
-//        binding.btnSubmit.setOnClickListener {
-//            val time = SimpleDateFormat(
-//                "dd-MM-yyyy HH:mm:ss",
-//                Locale.getDefault()
-//            ).format(Date())
-//
-//            binding.tvTime.text = "Attendance marked at:\n$time"
-//        }
-//    }
-//}
-
-
-
-//Updated code with permission of location
-
 package com.example.attendanceapp.ui.attendance
 
 import android.Manifest

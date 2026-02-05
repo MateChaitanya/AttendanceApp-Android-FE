@@ -1,109 +1,184 @@
-//package com.example.attendanceapp.ui.attendance
-//
-//import android.content.Intent
-//import android.os.Bundle
-//import androidx.appcompat.app.AppCompatActivity
-//import com.example.attendanceapp.databinding.ActivityDashboardBinding
-//
-//class DashboardActivity : AppCompatActivity() {
-//
-//    private lateinit var binding: ActivityDashboardBinding
-//
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        binding = ActivityDashboardBinding.inflate(layoutInflater)
-//        setContentView(binding.root)
-//
-//        // Navigate to Mark Attendance page
-//        binding.btnMarkAttendance.setOnClickListener {
-//            startActivity(
-//                Intent(this, MarkAttendanceActivity::class.java)
-//            )
-//        }
-//    }
-//}
-
-
 package com.example.attendanceapp.ui.attendance
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.os.Bundle
+import android.os.*
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import com.example.attendanceapp.databinding.ActivityDashboardBinding
+import com.example.attendanceapp.model.AttendanceRequest
+import com.example.attendanceapp.network.RetrofitClient
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
 class DashboardActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDashboardBinding
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationClient: FusedLocationProviderClient
+    private val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+    private var isCheckedIn = false
+    private var userId: Long = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        userId = intent.getLongExtra("USER_ID", -1)
+        binding.tvUserName.text = intent.getStringExtra("USER_NAME") ?: "User"
 
-        setTodayDate()
+        locationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        binding.btnCheckIn.setOnClickListener {
-            val time = getCurrentTime()
-            binding.tvCheckIn.text = "Check-In: $time"
+        startClock()
+        restoreState()
+        updateButtons()
 
-            getCurrentLocation()   // 🔥 LOCATION SHOWN HERE
+        binding.btnCheckIn.setOnClickListener { handleCheckIn() }
+        binding.btnCheckOut.setOnClickListener { handleCheckOut() }
+    }
 
-            binding.btnCheckIn.isEnabled = false
-            binding.btnCheckOut.isEnabled = true
+    // ================= CLOCK =================
+    private fun startClock() {
+        val handler = Handler(Looper.getMainLooper())
+        handler.post(object : Runnable {
+            override fun run() {
+                val now = Date()
+                binding.tvCurrentTime.text = timeFormat.format(now)
+                binding.tvDate.text = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(now)
+                handler.postDelayed(this, 1000)
+            }
+        })
+    }
+
+    // ================= CHECK-IN =================
+    private fun handleCheckIn() {
+        getLocation { lat, lon ->
+            lifecycleScope.launch {
+                try {
+                    val response = withContext(Dispatchers.IO) {
+                        RetrofitClient.apiService.checkIn(
+                            AttendanceRequest(userId, lat, lon)
+                        ).execute()
+                    }
+
+                    if (response.isSuccessful) {
+                        val time = timeFormat.format(Date())
+                        binding.tvCheckInTime.text = "Check-in: $time"
+                        binding.tvCheckInTime.visibility = View.VISIBLE
+                        binding.tvCheckOutTime.visibility = View.GONE
+                        binding.tvLocation.text = "Lat: $lat, Lon: $lon"
+                        binding.tvLocation.visibility = View.VISIBLE
+
+                        isCheckedIn = true
+                        saveState(time)
+                        updateButtons()
+                        Toast.makeText(this@DashboardActivity, "Checked In", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@DashboardActivity, "Already Checked In", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(this@DashboardActivity, "Error: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
+    }
 
-        binding.btnCheckOut.setOnClickListener {
-            val time = getCurrentTime()
-            binding.tvCheckOut.text = "Check-Out: $time"
-            binding.btnCheckOut.isEnabled = false
+    // ================= CHECK-OUT =================
+    private fun handleCheckOut() {
+        getLocation { lat, lon ->
+            lifecycleScope.launch {
+                try {
+                    val response = withContext(Dispatchers.IO) {
+                        RetrofitClient.apiService.checkOut(
+                            AttendanceRequest(userId, lat, lon)
+                        ).execute()
+                    }
+
+                    if (response.isSuccessful) {
+                        val time = timeFormat.format(Date())
+                        binding.tvCheckOutTime.text = "Check-out: $time"
+                        binding.tvCheckOutTime.visibility = View.VISIBLE
+                        binding.tvCheckInTime.visibility = View.VISIBLE
+                        binding.tvLocation.text = "Lat: $lat, Lon: $lon"
+                        binding.tvLocation.visibility = View.VISIBLE
+
+                        isCheckedIn = false
+                        clearState()
+                        updateButtons()
+                        Toast.makeText(this@DashboardActivity, "Checked Out", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@DashboardActivity, "No active check-in found", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(this@DashboardActivity, "Error: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
-    private fun setTodayDate() {
-        val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-        binding.tvDate.text = "Today: ${sdf.format(Date())}"
+    // ================= UPDATE BUTTONS =================
+    private fun updateButtons() {
+        binding.btnCheckIn.isEnabled = !isCheckedIn
+        binding.btnCheckOut.isEnabled = isCheckedIn
     }
 
-    private fun getCurrentTime(): String {
-        val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-        return sdf.format(Date())
+    // ================= SHARED PREFERENCES =================
+    private fun saveState(checkInTime: String) {
+        getSharedPreferences("attendance", MODE_PRIVATE)
+            .edit()
+            .putBoolean("CHECKED_IN", true)
+            .putString("CHECKIN_TIME", checkInTime)
+            .apply()
     }
 
-    private fun getCurrentLocation() {
+    private fun clearState() {
+        getSharedPreferences("attendance", MODE_PRIVATE)
+            .edit()
+            .clear()
+            .apply()
+    }
 
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
+    private fun restoreState() {
+        val prefs = getSharedPreferences("attendance", MODE_PRIVATE)
+        isCheckedIn = prefs.getBoolean("CHECKED_IN", false)
+
+        if (isCheckedIn) {
+            val time = prefs.getString("CHECKIN_TIME", "")
+            binding.tvCheckInTime.text = "Check-in: $time"
+            binding.tvCheckInTime.visibility = View.VISIBLE
+            binding.tvCheckOutTime.visibility = View.GONE
+        } else {
+            binding.tvCheckInTime.visibility = View.GONE
+            binding.tvCheckOutTime.visibility = View.GONE
+            binding.tvLocation.visibility = View.GONE
+        }
+    }
+
+    // ================= GET LOCATION =================
+    private fun getLocation(cb: (Double, Double) -> Unit) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
         ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                101
-            )
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 101)
             return
         }
 
-        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            if (location != null) {
-                val lat = location.latitude
-                val lng = location.longitude
-
-                // 👇 THIS LINE DISPLAYS LOCATION ON SCREEN
-                binding.tvLocation.text = "Location: $lat, $lng"
-            } else {
-                binding.tvLocation.text = "Location: Unable to fetch"
+        locationClient.lastLocation.addOnSuccessListener { loc ->
+            loc?.let {
+                cb(it.latitude, it.longitude)
+            } ?: run {
+                Toast.makeText(this, "Unable to fetch location", Toast.LENGTH_SHORT).show()
             }
         }
     }
 }
-//hi

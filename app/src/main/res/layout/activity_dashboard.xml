@@ -1,133 +1,195 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4F6FA"
-    tools:context=".ui.attendance.DashboardActivity">
+    android:background="#F4F6FA">
 
+    <!-- Top Header -->
     <LinearLayout
+        android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="100dp"
+        android:background="#2D2A6E"
+        android:padding="16dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Profile Card -->
-        <androidx.cardview.widget.CardView
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/icons8"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="Attendance App"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <!-- Profile Card -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/profileCard"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="6dp"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="6dp">
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@mipmap/ic_launcher"/>
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:id="@+id/imgProfile"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:src="@mipmap/ic_launcher"
-                    android:scaleType="centerCrop" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Chaitanya Mate"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvEmpId"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Employee ID: EMP102"
-                        android:textSize="14sp" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Attendance Card -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:padding="20dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="6dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
+                android:layout_marginStart="12dp"
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tvDate"
+                    android:id="@+id/tvUserName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Today: --"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:text="User Name"
+                    android:textSize="18sp"
+                    android:textStyle="bold"/>
 
                 <TextView
-                    android:id="@+id/tvCheckIn"
+                    android:id="@+id/tvEmpId"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="Check-In: --:--"
-                    android:textSize="16sp" />
+                    android:text="Employee ID"
+                    android:textSize="14sp"/>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
-                <TextView
-                    android:id="@+id/tvCheckOut"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="Check-Out: --:--"
-                    android:textSize="16sp" />
+    <!-- Time -->
+    <TextView
+        android:id="@+id/tvCurrentTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="09:12 PM"
+        android:textColor="#2D2A6E"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/profileCard"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-                <TextView
-                    android:id="@+id/tvLocation"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Location: --"
-                    android:textSize="14sp"
-                    android:textColor="#555555" />
+    <TextView
+        android:id="@+id/tvDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Wednesday, Feb 03"
+        android:textSize="16sp"
+        android:textColor="#666666"
+        app:layout_constraintTop_toBottomOf="@id/tvCurrentTime"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- Location -->
+    <TextView
+        android:id="@+id/tvLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Location: --"
+        android:textColor="#2D2A6E"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/tvDate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Bottom Punch Card -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardPunch"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:padding="16dp">
+
+            <!-- Check In -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnCheckIn"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:text="CHECK IN"
-                    app:cornerRadius="12dp" />
+                    android:text="Check In"/>
+
+                <TextView
+                    android:id="@+id/tvCheckInTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="--:--"
+                    android:textColor="#2ECC71"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:visibility="visible" />
+            </LinearLayout>
+
+            <!-- Check Out -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnCheckOut"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:enabled="false"
-                    android:text="CHECK OUT"
-                    app:cornerRadius="12dp" />
+                    android:text="Check Out"
+                    android:enabled="false"/>
 
+                <TextView
+                    android:id="@+id/tvCheckOutTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="--:--"
+                    android:textColor="#E74C3C"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:visibility="visible" />
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
 
-    </LinearLayout>
-</ScrollView>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
