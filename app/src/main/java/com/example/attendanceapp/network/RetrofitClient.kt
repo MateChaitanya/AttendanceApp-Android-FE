@@ -7,8 +7,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 object RetrofitClient {
 
     // Use your local network IP (computer IP visible to your phone)
-    //private const val BASE_URL = "http://192.168.1.33:8080/"
-    private const val BASE_URL = "http://10.28.91.157:8080/"
+    private const val BASE_URL = "http://192.168.1.33:8080/"
+    //private const val BASE_URL = "http://10.28.91.157:8080/"
 
 
     // Retrofit instance
